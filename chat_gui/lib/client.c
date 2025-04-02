@@ -396,25 +396,21 @@ void receive_history(int socket_fd) {
     }
 }
 
-int main(int argc, char *argv[]){
-    int socket_fd, port_n;
+int connect_socket(int port_n, const char* servip, const char* name_){
+
+    int socket_fd;
     struct sockaddr_in serv_addr;
     struct hostent *server;
 
-    if (argc < 4) {
-        raise_error("Uso: ./client <hostname> <puerto> <nombre>");
-    }
-
-    port_n = atoi(argv[2]);
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0){
         raise_error("Error abriendo socket");
     }
 
     char name[255];
-    strcpy(name, argv[3]);
+    strcpy(name, name_);
 
-    server = gethostbyname(argv[1]);
+    server = gethostbyname(servip);
     if (server == NULL){
         perror("Error host no existe");
     }
@@ -445,7 +441,7 @@ int main(int argc, char *argv[]){
         "Connection: Upgrade\r\n"
         "Sec-WebSocket-Version: 13\r\n"
         "Sec-WebSocket-Key: %s\r\n"
-    "\r\n", name, argv[1], port_n, sec_key);
+    "\r\n", name, servip, port_n, sec_key);
 
     n = write(socket_fd, handshake, strlen(handshake));
     if(n < 0){
@@ -460,96 +456,164 @@ int main(int argc, char *argv[]){
         raise_error("El servidor no aceptó el upgrade a WebSocket.");
     }
     printf("Conexión establecida: %s\n", buffer);
-
-
-    // Escritura
-        // bzero(buffer, 255);
-        // fgets(buffer, 255, stdin);
-        // n = write(socket_fd, buffer, strlen(buffer));
-        // if(n<0){
-        //     raise_error("Error escribiendo");
-        // }
-        // // Lectura
-        // bzero(buffer, 255);
-        // n = read(socket_fd, buffer, 255);
-        // if(n<0){
-        //     raise_error("Error leyendo");
-        // }
-        // printf("Server: %s\n", buffer);
-
-        // // Condicion de serrado
-        // int i = strncmp("close",buffer, 5);
-        // if (i == 0){
-        //     break;
-        // }
-    // Menú interactivo
-    int opcion;
-    char input[256];
-    do {
-        printf("\nMenú de opciones:\n");
-        printf("1. Listar usuarios conectados\n");
-        printf("2. Obtener información de un usuario\n");
-        printf("3. Cambiar estatus\n");
-        printf("4. Enviar mensaje\n");
-        printf("5. Ver historial de chat\n");
-        printf("6. Esperar mensaje del servidor\n");
-        printf("0. Salir\n");
-        printf("Selecciona una opción: ");
-        scanf("%d", &opcion);
-        getchar();
-
-        switch (opcion) {
-            case 1:
-                list_users(socket_fd);
-                handle_server_response(socket_fd);
-                break;
-            case 2:
-                printf("Nombre del usuario: ");
-                fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0';
-                get_user_info(socket_fd, input);
-                handle_server_response(socket_fd);
-                break;
-            case 3: {
-                printf("Nuevo estatus (1 = ACTIVO, 2 = OCUPADO, 3 = INACTIVO): ");
-                int status;
-                scanf("%d", &status);
-                getchar();
-                change_status(socket_fd, name, status);
-                break;
-            }
-            case 4:
-                printf("Enviar a (~ para general o nombre del usuario): ");
-                fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0';
-                char destino[256];
-                strcpy(destino, input);
-                printf("Mensaje: ");
-                fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0';
-                send_message(socket_fd, name, destino, input);
-                break;
-            case 5:
-                printf("Historial con (~ para general o nombre del usuario): ");
-                fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0';
-                request_history(socket_fd, input);
-                break;
-            case 6:
-                printf("Esperando mensaje...\n");
-                handle_server_response(socket_fd);
-                break;
-            case 0:
-                printf("Cerrando sesión...\n");
-                break;
-            default:
-                printf("Opción inválida.\n");
-        }
-    } while (opcion != 0);
-    // Enviar código de cierre (opcional según protocolo real, no necesario si solo cierras TCP)
-    char close_frame[2] = {0x88, 0x00};  // Opcode 8 (close), payload length 0
-    websocket_send(socket_fd, close_frame, 2);
-
-    close(socket_fd);
-    return 0;
+    return socket_fd;
 }
+
+
+// int main(int argc, char *argv[]){
+//     int socket_fd, port_n;
+//     struct sockaddr_in serv_addr;
+//     struct hostent *server;
+
+//     if (argc < 4) {
+//         raise_error("Uso: ./client <hostname> <puerto> <nombre>");
+//     }
+
+//     port_n = atoi(argv[2]);
+//     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+//     if (socket_fd < 0){
+//         raise_error("Error abriendo socket");
+//     }
+
+//     char name[255];
+//     strcpy(name, argv[3]);
+
+//     server = gethostbyname(argv[1]);
+//     if (server == NULL){
+//         perror("Error host no existe");
+//     }
+
+//     bzero((char *) &serv_addr, sizeof(serv_addr));
+//     serv_addr.sin_family = AF_INET;
+//     bcopy((char *) server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
+//     serv_addr.sin_port = htons(port_n);
+//     // Validar nombre antes del handshake
+//     if (strcmp(name, "~") == 0 || strlen(name) == 0) {
+//         raise_error("El nombre de usuario no puede ser '~' ni vacío.");
+//     }    
+//     // Conexión 
+//     if (connect(socket_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
+//         raise_error("Conexion fallo");
+//     }
+
+//     char buffer[255];
+//     char handshake[1024];
+//     int n;
+//     // generar Sec-WebSocket-Key
+//     char sec_key[32];
+//     generate_websocket_key(sec_key);
+//     snprintf(handshake, sizeof(handshake),
+//         "GET /?name=%s HTTP/1.1\r\n"
+//         "Host: %s:%d\r\n"
+//         "Upgrade: websocket\r\n"
+//         "Connection: Upgrade\r\n"
+//         "Sec-WebSocket-Version: 13\r\n"
+//         "Sec-WebSocket-Key: %s\r\n"
+//     "\r\n", name, argv[1], port_n, sec_key);
+
+//     n = write(socket_fd, handshake, strlen(handshake));
+//     if(n < 0){
+//         raise_error("Error escribiendo");
+//     }
+//     // Validar respuesta del servidor al handshake
+//     n = read(socket_fd, buffer, sizeof(buffer)-1);
+//     if (n < 0) raise_error("Error leyendo respuesta del servidor");
+//     buffer[n] = '\0';
+
+//     if (strstr(buffer, "HTTP/1.1 101") == NULL) {
+//         raise_error("El servidor no aceptó el upgrade a WebSocket.");
+//     }
+//     printf("Conexión establecida: %s\n", buffer);
+
+
+//     // Escritura
+//         // bzero(buffer, 255);
+//         // fgets(buffer, 255, stdin);
+//         // n = write(socket_fd, buffer, strlen(buffer));
+//         // if(n<0){
+//         //     raise_error("Error escribiendo");
+//         // }
+//         // // Lectura
+//         // bzero(buffer, 255);
+//         // n = read(socket_fd, buffer, 255);
+//         // if(n<0){
+//         //     raise_error("Error leyendo");
+//         // }
+//         // printf("Server: %s\n", buffer);
+
+//         // // Condicion de serrado
+//         // int i = strncmp("close",buffer, 5);
+//         // if (i == 0){
+//         //     break;
+//         // }
+//     // Menú interactivo
+//     int opcion;
+//     char input[256];
+//     do {
+//         printf("\nMenú de opciones:\n");
+//         printf("1. Listar usuarios conectados\n");
+//         printf("2. Obtener información de un usuario\n");
+//         printf("3. Cambiar estatus\n");
+//         printf("4. Enviar mensaje\n");
+//         printf("5. Ver historial de chat\n");
+//         printf("6. Esperar mensaje del servidor\n");
+//         printf("0. Salir\n");
+//         printf("Selecciona una opción: ");
+//         scanf("%d", &opcion);
+//         getchar();
+
+//         switch (opcion) {
+//             case 1:
+//                 list_users(socket_fd);
+//                 handle_server_response(socket_fd);
+//                 break;
+//             case 2:
+//                 printf("Nombre del usuario: ");
+//                 fgets(input, sizeof(input), stdin);
+//                 input[strcspn(input, "\n")] = '\0';
+//                 get_user_info(socket_fd, input);
+//                 handle_server_response(socket_fd);
+//                 break;
+//             case 3: {
+//                 printf("Nuevo estatus (1 = ACTIVO, 2 = OCUPADO, 3 = INACTIVO): ");
+//                 int status;
+//                 scanf("%d", &status);
+//                 getchar();
+//                 change_status(socket_fd, name, status);
+//                 break;
+//             }
+//             case 4:
+//                 printf("Enviar a (~ para general o nombre del usuario): ");
+//                 fgets(input, sizeof(input), stdin);
+//                 input[strcspn(input, "\n")] = '\0';
+//                 char destino[256];
+//                 strcpy(destino, input);
+//                 printf("Mensaje: ");
+//                 fgets(input, sizeof(input), stdin);
+//                 input[strcspn(input, "\n")] = '\0';
+//                 send_message(socket_fd, name, destino, input);
+//                 break;
+//             case 5:
+//                 printf("Historial con (~ para general o nombre del usuario): ");
+//                 fgets(input, sizeof(input), stdin);
+//                 input[strcspn(input, "\n")] = '\0';
+//                 request_history(socket_fd, input);
+//                 break;
+//             case 6:
+//                 printf("Esperando mensaje...\n");
+//                 handle_server_response(socket_fd);
+//                 break;
+//             case 0:
+//                 printf("Cerrando sesión...\n");
+//                 break;
+//             default:
+//                 printf("Opción inválida.\n");
+//         }
+//     } while (opcion != 0);
+//     // Enviar código de cierre (opcional según protocolo real, no necesario si solo cierras TCP)
+//     char close_frame[2] = {0x88, 0x00};  // Opcode 8 (close), payload length 0
+//     websocket_send(socket_fd, close_frame, 2);
+
+//     close(socket_fd);
+//     return 0;
+// }

@@ -1,5 +1,5 @@
-#ifndef NEWWINDOW_H
-#define NEWWINDOW_H
+#ifndef NEWWINDOW2_H
+#define NEWWINDOW2_H
 
 #include <QWidget>  // Necesario para que NewWindow herede de QWidget
 
@@ -21,5 +21,6 @@ private:
     Ui::NewWindow *ui;  // Puntero al objeto de la UI de NewWindow
 };
 
-#endif // NEWWINDOW_H
+#endif // NEWWINDOW2_H
+
 

@@ -1,6 +1,5 @@
 #include "newwindow.h"
-#include "ui_newwindow.h"  // Archivo generado por Qt para la interfaz de NewWindow
-
+#include "./ui_newwindow.h"
 NewWindow::NewWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::NewWindow)  // Inicialización de la UI de NewWindow

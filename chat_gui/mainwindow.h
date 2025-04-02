@@ -17,10 +17,19 @@ public:
 
 public slots:
     void updateUI(bool success);
+    
 
 private:
     Ui::MainWindow *ui;
     void onConnectClicked();
+    void onListUsers();
+    void onChangeStatus();
+    void onSendMessage();
+    std::string username;
+    std::string server_ip;
+    int port;
+    int socket_fd;
+    int user_status;
 };
 
 #endif //

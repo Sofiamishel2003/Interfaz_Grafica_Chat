@@ -50,8 +50,7 @@ void generate_websocket_key(char *output) {
 }
 
 // función para hacer el framing WebSocket básico (sin fragmentación)
-int websocket_send(int socket_fd, const char *data, size_t data_len) {
-    uint8_t frame[1024];
+int websocket_send(int socket_fd, const char *data, size_t data_len, unit8_t frame[1024]) {
     size_t pos = 0;
 
     frame[pos++] = 0x82; // FIN + opcode 0x2 (binary)
@@ -171,11 +170,14 @@ void raise_error(const char *msg){
     exit(1);
 }
 // Enviar solicitud de listado de usuarios (tipo 1)
-void list_users(int socket_fd) {
+void list_users(int socket_fd, uint8_t frame[1024]) {
     char buffer[2];
     buffer[0] = 1;  // Tipo de mensaje 1
     buffer[1] = 0;  // Longitud del campo = 0 (sin argumentos)
-    websocket_send(socket_fd, buffer, 2);
+    uint8_t mssg[1024];
+    size_t message_length = strlen(message);
+    websocket_send(socket_fd, buffer, 2, frame);
+    memcpy(frame, mssg, message_length);
 }
 
 // Obtener info de un usuario específico (tipo 2)
@@ -320,7 +322,7 @@ void send_message(int socket_fd, const char *username, const char *dest, const c
     printf("Mensaje enviado a %s: %s\n", dest, message);
 }
 
-void receive_message(int socket_fd) {
+void receive_message(int socket_fd, char buffer[256]) {
     char buffer[256];
     int n = websocket_receive(socket_fd, buffer, sizeof(buffer));
     if (n < 0) raise_error("Error leyendo respuesta del servidor");

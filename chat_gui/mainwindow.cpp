@@ -1,31 +1,14 @@
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
-    // Create a central widget
-    QWidget *centralWidget = new QWidget(this);
-    setCentralWidget(centralWidget);
-
-    // Main layout
-    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
-
-    // Create Button
-    button = new QPushButton("Click Me", this);
-    mainLayout->addWidget(button);
-
-    // Create GroupBox
-    groupBox = new QGroupBox("Labels Box", this);
-    groupLayout = new QVBoxLayout(groupBox);
-
-    // Create labels
-    for (int i = 0; i < 5; ++i) {
-        labels[i] = new QLabel("Label " + QString::number(i + 1), this);
-        groupLayout->addWidget(labels[i]);
-    }
-
-    groupBox->setLayout(groupLayout);
-    mainLayout->addWidget(groupBox);
+    ui->setupUi(this); // This is where the UI elements from the .ui file are initialized
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow()
+{
+    delete ui;
+}

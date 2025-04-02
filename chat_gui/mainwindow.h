@@ -2,24 +2,21 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QGroupBox>
-#include <QLabel>
+
+namespace Ui {
+class MainWindow;
+}
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private:
-    QPushButton *button;
-    QGroupBox *groupBox;
-    QVBoxLayout *groupLayout;
-    QLabel *labels[5]; // Array of labels
+    Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H

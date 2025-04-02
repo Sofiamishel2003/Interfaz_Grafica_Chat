@@ -2,12 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QLabel>
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +16,10 @@ public:
     ~MainWindow();
 
 private:
-    Ui::MainWindow *ui;
+    QPushButton *button;
+    QGroupBox *groupBox;
+    QVBoxLayout *groupLayout;
+    QLabel *labels[5]; // Array of labels
 };
+
 #endif // MAINWINDOW_H

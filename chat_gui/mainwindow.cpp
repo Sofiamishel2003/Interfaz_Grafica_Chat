@@ -6,11 +6,10 @@
 #include "client.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-
+    : QMainWindow(parent),
+    ui(new Ui::MainWindow)
+    {
+        ui->setupUi(this); //
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::onConnectClicked);
 }
 
@@ -19,12 +18,30 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::onConnectClicked() {
-    int port_n = 8000;
-    std::string server_ip = "3.133.134.47";
-    std::string name = "from_frontend";
+void MainWindow::updateUI(bool success) {
+    if (success) {
+        ui->label_8->setText("Connected!");
+    } else {
+        ui->label_8->setText("Connection failed.");
+    }
+}
 
-    // Run in a separate thread
+void MainWindow::onConnectClicked() {
+
+    QString ip = ui->lineEdit->text(); 
+    QString port_str = ui->lineEdit_2->text();
+    QString username = ui->lineEdit_3->text();
+
+
+    std::string server_ip = ip.toStdString();
+    std::string name = username.toStdString();
+    bool ok;
+    int port_n = port_str.toInt(&ok); 
+    if (!ok || port_n <= 0) {
+        // If the conversion failed or the port is invalid, handle the error
+        qDebug() << "Invalid port!";
+        return;
+    }
     QtConcurrent::run([=]() {
         qDebug() << "Connecting to server...";
         int sock = connect_socket(port_n, server_ip.c_str(), name.c_str());
@@ -38,10 +55,3 @@ void MainWindow::onConnectClicked() {
     });
 }
 
-void MainWindow::updateUI(bool success) {
-    if (success) {
-        ui->label_8->setText("Connected!");
-    } else {
-        ui->label_8->setText("Connection failed.");
-    }
-}

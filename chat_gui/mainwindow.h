@@ -12,15 +12,15 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void onConnectClicked();
-    void updateUI(bool success); // UI update function
+public slots:
+    void updateUI(bool success);
 
 private:
     Ui::MainWindow *ui;
+    void onConnectClicked();
 };
 
 #endif //

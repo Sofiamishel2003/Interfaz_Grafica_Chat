@@ -292,20 +292,10 @@
      <string>Listar</string>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox_2">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>210</y>
-      <width>101</width>
-      <height>24</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton_4">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>350</x>
       <y>210</y>
       <width>80</width>
       <height>24</height>
@@ -403,6 +393,16 @@
     </property>
     <property name="text">
      <string>Resultado</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_6">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>210</y>
+      <width>113</width>
+      <height>24</height>
+     </rect>
     </property>
    </widget>
   </widget>

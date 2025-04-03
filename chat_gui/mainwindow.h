@@ -25,6 +25,7 @@ private:
     void onListUsers();
     void onChangeStatus();
     void onSendMessage();
+    void onHelp();
     std::string username;
     std::string server_ip;
     std::string chat_name;

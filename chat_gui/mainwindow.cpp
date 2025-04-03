@@ -35,9 +35,9 @@ void MainWindow::updateUI(bool success) {
 }
 
 void MainWindow::onSendMessage(){
-    QString mssg = ui->lineEdit_2->currentText();
-    QString dest = "~";
-    send_message(socket_fd, username.c_str(),dest.c_str(), mssg.c_str())
+    QString mssg = ui->lineEdit_4->text();
+    QString dest = ui->lineEdit_6->text();
+    send_message(socket_fd, username.c_str(),dest.toStdString().c_str(), mssg.toStdString().c_str());
 }
 
 void MainWindow::onChangeStatus(){

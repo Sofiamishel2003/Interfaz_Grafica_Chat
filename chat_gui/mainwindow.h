@@ -27,6 +27,7 @@ private:
     void onSendMessage();
     std::string username;
     std::string server_ip;
+    std::string chat_name;
     int port;
     int socket_fd;
     int user_status;
